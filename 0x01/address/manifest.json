@@ -19,8 +19,13 @@
     "capabilities": [
       "POST"
     ],
-    "price": {
-      "native": "0.00001"
-    },
+    "price": [{
+      "native": "0.00001",
+      "ERC20": [
+          {
+            "0x0033234": "1"
+          }
+        ]
+    }],
     "chain": "0x1"
   }
