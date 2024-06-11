@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+      "@app/*": ["./src/*"]
+    },
+    "target": "es6",
+    "lib": ["es2021", "dom"],
+    "jsx": "react-jsx",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "allowSyntheticDefaultImports": true,
+    "typeRoots": ["./node_modules/@types"]
+  },
+  "include": ["src/**/*.ts", "src/**/*.tsx"],
+  "alias": {
+    "@open-social-protocol/osp-plugin-api-types": "../packages/osp-plugin-api-types"
+  }
+}
