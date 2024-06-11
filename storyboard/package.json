@@ -12,6 +12,8 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.1.4",
+    "@open-social-protocol/osp-client": "^0.0.23",
+    "@open-social-protocol/osp-plugin-api-types": "^1.0.1",
     "ahooks": "^3.7.8",
     "antd": "^5.18.0",
     "axios": "^1.4.0",
