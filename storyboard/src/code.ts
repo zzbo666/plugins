@@ -1,8 +1,7 @@
-import { AppEventNameType } from "@open-social-protocol/osp-plugin-api-types";
 import { ContractAction } from "./pluginUi/utils/constance/contractAction";
 import { ethers } from "ethers";
 
-ospSandbox.onEvent(AppEventNameType.onUILoad, () => {
+ospSandbox.onEvent("onUILoad", () => {
   // ospSandbox.iframe.postMessage({ pluginMessage: 'paySuccess' });
   ospSandbox.uiApi.postMessage({
     type: "PluginMessage",
