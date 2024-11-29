@@ -1,43 +1,44 @@
 {
-  "name": "Tipping",
-  "version": "1.0.0",
-  "description": "Tipping example",
-  "projectPath": "tipping",
-  "main": "./code.js",
-  "ui": "./ui.html",
-  "networkAccess": {
-    "allowDomains": [
-      "*"
-    ]
-  },
-  "capabilities": [
-    "REACTION"
-  ],
-  "chargeFee": [],
-  "abi": {},
-  "uniqueId": {
-    "reaction": {
-      "verb": "tipping",
-      "subVerb": "tipping"
-    }
-  },
-  "reactionStats": {
-    "activity": [
-      "reaction_count",
-      "reaction_user_count"
-    ],
-    "user": [
-      "reaction_count",
-      "reaction_user_count",
-      "reaction_sum_usd"
-    ]
-  },
-  "extensionData": {
-    "referenceProfileId": {
-      "type": "uint256"
+    "name": "Tipping",
+    "version": "1.0.0",
+    "description": "Tipping example",
+    "projectPath": "tipping",
+    "category": "PLUGIN",
+    "main": "./code.js",
+    "ui": "./ui.html",
+    "networkAccess": {
+        "allowDomains": [
+            "*"
+        ]
     },
-    "referenceContentId": {
-      "type": "uint256"
+    "capabilities": [
+        "REACTION"
+    ],
+    "chargeFee": [],
+    "abi": {},
+    "uniqueId": {
+        "reaction": {
+            "verb": "tipping",
+            "subVerb": "tipping"
+        }
+    },
+    "reactionStats": {
+        "activity": [
+            "reaction_count",
+            "reaction_user_count"
+        ],
+        "user": [
+            "reaction_count",
+            "reaction_user_count",
+            "reaction_sum_usd"
+        ]
+    },
+    "extensionData": {
+        "referenceProfileId": {
+            "type": "uint256"
+        },
+        "referenceContentId": {
+            "type": "uint256"
+        }
     }
-  }
 }
