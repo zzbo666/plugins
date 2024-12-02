@@ -18,8 +18,8 @@
     "abi": {},
     "uniqueId": {
         "reaction": {
-            "verb": "tipping",
-            "subVerb": "tipping"
+            "verb": "TIPPING",
+            "subVerb": "TIPPING"
         }
     },
     "reactionStats": {
