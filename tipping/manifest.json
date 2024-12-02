@@ -30,7 +30,7 @@
         "user": [
             "reaction_count",
             "reaction_user_count",
-            "reaction_sum_usd"
+            "reaction_usd_amount"
         ]
     },
     "extensionData": {
