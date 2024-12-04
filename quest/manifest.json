@@ -2,6 +2,8 @@
     "name": "Quest",
     "version": "1.0.0",
     "description": "Quest plugin",
+    "projectPath": "quest",
+    "category": "PLUGIN",
     "main": "./code.js",
     "ui": "./ui.html",
     "networkAccess": {
