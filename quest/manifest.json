@@ -1,0 +1,59 @@
+{
+    "name": "Quest",
+    "version": "1.0.0",
+    "description": "Quest plugin",
+    "main": "./code.js",
+    "ui": "./ui.html",
+    "networkAccess": {
+        "allowDomains": [
+            "*"
+        ]
+    },
+    "capabilities": [
+        "POST",
+        "REACTION"
+    ],
+    "abi": {},
+    "uniqueId": {
+        "activity": {
+            "verb": "POST",
+            "subVerb": "QUEST"
+        },
+        "reaction": {
+            "verb": "VERIFY_QUEST"
+        }
+    },
+    "powered": {
+        "name": "Deek"
+    },
+    "reactionStats": {
+        "user": [
+            "reaction_sum_usd"
+        ]
+    },
+    "extensionData": {
+        "currency": {
+            "type": "address"
+        },
+        "amount": {
+            "type": "uint256"
+        },
+        "start": {
+            "type": "uint256"
+        },
+        "deadline": {
+            "type": "uint256"
+        }
+    },
+    "reactionData": {
+        "currency": {
+            "type": "address"
+        },
+        "amount": {
+            "type": "uint256"
+        },
+        "remaining": {
+            "type": "uint256"
+        }
+    }
+}
