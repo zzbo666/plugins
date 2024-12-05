@@ -16,12 +16,11 @@
     ],
     "chargeFee": [],
     "abi": {},
-    "uniqueId": {
-        "reaction": {
-            "verb": "TIPPING",
-            "subVerb": "TIPPING"
-        }
-    },
+    "businesses": [{
+        "verb":"TIPPING",
+        "subVerb": "TIPPING",
+        "capability":"REACTION"
+    }],
     "reactionStats": {
         "activity": [
             "reaction_count",
@@ -33,7 +32,7 @@
             "reaction_usd_amount"
         ]
     },
-    "extensionData": {
+    "reactionData": {
         "referenceProfileId": {
             "type": "uint256"
         },
