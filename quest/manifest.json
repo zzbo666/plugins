@@ -1,36 +1,37 @@
 {
     "name": "Quest",
     "version": "1.0.0",
-    "description": "Quest plugin",
+    "description": "Deek Quest",
     "projectPath": "quest",
-    "category": "PLUGIN",
     "main": "./code.js",
     "ui": "./ui.html",
+    "category": "PLUGIN",
     "networkAccess": {
         "allowDomains": [
             "*"
         ]
     },
     "capabilities": [
-        "POST",
+        "ACTIVITY",
         "REACTION"
     ],
     "abi": {},
-    "uniqueId": {
-        "activity": {
+    "businesses": [
+        {
             "verb": "POST",
-            "subVerb": "QUEST"
+            "subVerb": "QUEST",
+            "capability": "ACTIVITY"
         },
-        "reaction": {
-            "verb": "VERIFY_QUEST"
+        {
+            "verb": "VERIFY_QUEST",
+            "subVerb": "VERIFY_QUEST",
+            "capability": "REACTION",
+            "targetVerb": "QUEST"
         }
-    },
-    "powered": {
-        "name": "Deek"
-    },
+    ],
     "reactionStats": {
         "user": [
-            "reaction_sum_usd"
+            "reaction_usd_amount"
         ]
     },
     "extensionData": {
