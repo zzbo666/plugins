@@ -12,8 +12,7 @@
         ]
     },
     "capabilities": [
-        "ACTIVITY",
-        "REACTION"
+        "ACTIVITY"
     ],
     "abi": {},
     "businesses": [
@@ -25,8 +24,7 @@
         {
             "verb": "VERIFY_QUEST",
             "subVerb": "VERIFY_QUEST",
-            "capability": "REACTION",
-            "targetVerb": "QUEST"
+            "capability": "REACTION"
         }
     ],
     "reactionStats": {
@@ -46,6 +44,9 @@
         },
         "deadline": {
             "type": "uint256"
+        },
+        "quantity": {
+            "type": "uint256"
         }
     },
     "reactionData": {
@@ -55,7 +56,7 @@
         "amount": {
             "type": "uint256"
         },
-        "remaining": {
+        "verified": {
             "type": "uint256"
         }
     }
