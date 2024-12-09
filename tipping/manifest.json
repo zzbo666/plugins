@@ -4,6 +4,9 @@
     "description": "Tipping example",
     "projectPath": "tipping",
     "category": "PLUGIN",
+    "powerBy": {
+        "title": "Open Social Protocol"
+    },
     "main": "./code.js",
     "ui": "./ui.html",
     "networkAccess": {
@@ -15,12 +18,14 @@
         "REACTION"
     ],
     "chargeFee": [],
-    "abi": {},
-    "businesses": [{
-        "verb":"TIPPING",
-        "subVerb": "TIPPING",
-        "capability":"REACTION"
-    }],
+    "abis": [],
+    "businesses": [
+        {
+            "verb": "TIPPING",
+            "subVerb": "TIPPING",
+            "capability": "REACTION"
+        }
+    ],
     "reactionStats": {
         "activity": [
             "reaction_count",
