@@ -34,7 +34,6 @@
     },
     {
       "verb": "VERIFY_QUEST",
-      "subVerb": "VERIFY_QUEST",
       "capability": "REACTION"
     }
   ],
