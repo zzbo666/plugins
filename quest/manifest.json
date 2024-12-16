@@ -39,7 +39,7 @@
   ],
   "reactionStats": {
     "user": [
-      "reaction_usd_amount"
+      "usd_amount"
     ]
   },
   "extensionData": {
