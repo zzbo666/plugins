@@ -20,7 +20,7 @@
   "abis": [
     {
       "groupName": "deek",
-      "address": "0xcE493450975992490E96b97d743AF8C820a9aD79",
+      "address": "0xffb6EAEACA5bcCe6dc1bc8A284900508d2BF857B",
       "abi": [
         "function refundQuest(uint256) external payable"
       ]
