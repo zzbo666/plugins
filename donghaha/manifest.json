@@ -1,8 +1,8 @@
 {
-  "name": "haha",
+  "name": "donghaha",
   "version": "1.0.0",
-  "description": "Deek haha",
-  "projectPath": "haha",
+  "description": "Deek donghaha",
+  "projectPath": "donghaha",
   "main": "./code.js",
   "ui": "./ui.html",
   "category": "PLUGIN",
