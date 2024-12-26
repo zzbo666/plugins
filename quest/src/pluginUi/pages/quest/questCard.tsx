@@ -4,8 +4,13 @@ import "../questDetail/detail.css";
 
 import { OspStore, useStore } from "@app/pluginUi/stores";
 import { TQuestEnum, TQuestType } from "@app/pluginUi/stores/types";
+import {
+  formatKMBNumber,
+  formatNumberPrecision,
+} from "@app/pluginUi/utils/parse/commonUtils";
 
 import { Progress } from "antd";
+import bigDecimal from "js-big-decimal";
 import { cn } from "@app/pluginUi/utils";
 import { transformIpfs } from "@app/pluginUi/utils/transformIpfs";
 import { useOspProfileList } from "../hooks/useOspProfileList";
@@ -37,7 +42,9 @@ export interface QCardProps {
 
   loading: boolean;
 
-  cardType: "install" | "end" | "refund" | "hide";
+  cardType: "install" | "end" | "refund" | "hide" | "verified";
+
+  islogin: boolean;
   // 是否结束
   isEnded: boolean;
   onGo?(): void;
@@ -61,12 +68,23 @@ const QuestCardOrg = (props: QCardProps) => {
     isEnded,
     loading,
     cardType = TQuestEnum.Initial,
+    islogin,
     onGo,
     onVerify,
     onRefund,
   } = props;
 
   console.log("btnHid", btnHid);
+  const titleStr = islogin ? "Follow --- X" : `Follow @${title}'s X`;
+  const gainCoinStr = islogin ? "---" : gainCoin;
+  const coinTotalStr = islogin
+    ? "from a --- prize pool"
+    : `from a ${coinTotal} ${coinName} prize pool`;
+
+  const progressNum = islogin ? 40 : progress;
+
+  const claimedStr = islogin ? "---" : claimed;
+
   const previewRef = useRef(null);
   const ospStore = useStore<OspStore>("ospStore");
 
@@ -76,6 +94,7 @@ const QuestCardOrg = (props: QCardProps) => {
   );
   console.log("profile list-->", data, verifiers);
   const onGoAction = () => {
+    console.log("onGoAction");
     onGo && onGo();
   };
   const onVerifyAction = () => {
@@ -85,43 +104,66 @@ const QuestCardOrg = (props: QCardProps) => {
     onRefund && onRefund();
   };
 
+  const formatVerified = formatKMBNumber(
+    formatNumberPrecision(
+      verified,
+      1,
+      bigDecimal.RoundingModes.DOWN,
+      true,
+      false
+    ),
+    1
+  );
+  const verifiedStr = islogin ? "--" : formatVerified;
+
   const TopView = () => {
+    console.log("questCard==TopView", islogin);
     return (
-      <div className="flex flex-row  selection:w-full justify-between gap-8">
-        <div className="flex w-44 h-44 bg-background_primary items-center justify-center">
-          <img
-            src={require("../../../../assets/icon/twitter_icon.svg")}
-            className="h-24 w-24"
-            style={{ objectFit: "contain" }}
-          />
-        </div>
-        <div className="w-full flex flex-col">
-          <div className="text-content_primary body-l-bold">
-            Follow {title}’s X
+      <div className="flex relative  selection:w-full ">
+        <div className="flex w-full flex-row items-center gap-2 ">
+          <div className="flex p-10 bg-background_primary items-center justify-center rounded-8">
+            <img
+              src={require("../../../../assets/icon/twitter_icon.svg")}
+              className="h-24 w-24"
+              style={{ objectFit: "contain" }}
+            />
           </div>
-          <div className="flex flex-row text-content_tertiary items-center whitespace-nowrap overflow-ellipsis overflow-hidden body-s-regular gap-2 ">
-            Get
-            <div className=" whitespace-nowrap overflow-ellipsis overflow-hidden body-s-bold text-content_primary">
-              <img
-                src={
-                  coinIcon || require("../../../../assets/icon/USDC_test.svg")
-                }
-                className="h-12 w-12 mr-2"
-                style={{ objectFit: "contain" }}
-              />
-              {gainCoin}
+          <div className="flex flex-col">
+            <div className="text-content_primary body-l-bold">{titleStr}</div>
+            <div className="flex flex-row text-content_tertiary items-center whitespace-nowrap overflow-ellipsis overflow-hidden body-s-regular gap-2 ">
+              Get
+              <div className="flex whitespace-nowrap overflow-ellipsis overflow-hidden body-s-bold text-content_primary items-center flex-row">
+                {!islogin ? (
+                  <img
+                    src={
+                      coinIcon ||
+                      require("../../../../assets/icon/USDC_test.svg")
+                    }
+                    className="h-12 w-12 mr-2"
+                    // style={{ objectFit: "contain" }}
+                  />
+                ) : null}
+                <div>{gainCoinStr}</div>
+              </div>
+              {coinTotalStr}
             </div>
-            {`from a ${coinTotal} ${coinName} prize pool`}
           </div>
         </div>
+
         {isEnded ? (
-          <div className="flex px-[4px] py-[2px] h-[28px] bg-[#1E466B] text-[#47DAFF] rounded-[4px]">
+          <div className=" absolute flex px-4 py-2 items-center h-17 bg-primitives_blue_900 text-primitives_teal_500 rounded-4 body-s-bold right-0">
             Ended
           </div>
         ) : null}
       </div>
     );
   };
+
+  /**
+  |--------------------------------------------------
+  | 去掉 deek 标识
+  |--------------------------------------------------
+  */
   const EndDescView = () => {
     return (
       <div className="flex flex-row items-center mt-24 py-4 px-8 w-fit bg-background_tertiary rounded-6">
@@ -142,6 +184,7 @@ const QuestCardOrg = (props: QCardProps) => {
   const ButtonView = () => {
     const isEnd = cardType === "end";
     const isRefund = cardType === "refund";
+    console.log("questCard==ButtonView", cardType);
     if (cardType === "hide") {
       return null;
     }
@@ -149,7 +192,7 @@ const QuestCardOrg = (props: QCardProps) => {
       return (
         <div className="flex flex-row">
           <div
-            className="flex bg-button_pri_default_bg w-full h-[44px] mt-[14px] rounded-[12px] items-center  justify-center headline-h6"
+            className="flex bg-button_pri_default_bg w-full h-44 mt-14 rounded-12 items-center  justify-center headline-h8 font-obviously_variable"
             onClick={onRefundAction}
           >
             Refund
@@ -165,11 +208,11 @@ const QuestCardOrg = (props: QCardProps) => {
         : "bg-button_pri_default_bg text-pri_defult_con";
 
       return (
-        <div className="flex flex-row items-center justify-center mt-[24px]">
+        <div className="flex flex-row items-center justify-center mt-24">
           <div
             className={cn(
-              "flex flex-1 h-[44px] rounded-[12px] items-center  justify-center  headline-h6",
-              "border-[2px] border-solid",
+              "flex flex-1 h-44 rounded-12 items-center  justify-center  headline-h8 font-obviously_variable",
+              "border-2 border-solid",
               end_go_c
             )}
             onClick={onGoAction}
@@ -178,7 +221,7 @@ const QuestCardOrg = (props: QCardProps) => {
           </div>
           <div
             className={cn(
-              "ml-[12px] flex flex-1 h-[44px] rounded-[12px] items-center  justify-center headline-h6",
+              "ml-12 flex flex-1 h-44 rounded-12 items-center  justify-center headline-h8 font-obviously_variable",
               end_verify_c
             )}
             onClick={onVerifyAction}
@@ -198,7 +241,12 @@ const QuestCardOrg = (props: QCardProps) => {
     return (
       <div className="flex flex-col w-full bg-background_overlay10 rounded-[6px] mt-[12px]">
         <div className="absolute left-0 top-0 h-[8px] bg-red-400 "></div>
-        <Progress percent={progress} type="line" showInfo={false} />
+        <Progress
+          percent={progressNum}
+          type="line"
+          showInfo={false}
+          strokeColor="#1ed1e9"
+        />
       </div>
     );
   };
@@ -214,12 +262,12 @@ const QuestCardOrg = (props: QCardProps) => {
           {data?.map((profile) => {
             return (
               <div
-                className="w-[16px] h-[16px] rounded-full ml-[-8px]"
+                className="w-16 h-16 rounded-full ml--8"
                 key={profile?.profile_id}
               >
                 <img
                   src={transformIpfs(profile?.avatar)}
-                  className="h-[16px] w-[16px]"
+                  className="h-16 w-16"
                   style={{ objectFit: "contain" }}
                 />
               </div>
@@ -229,18 +277,18 @@ const QuestCardOrg = (props: QCardProps) => {
       );
     };
     return (
-      <div className="flex flex-col w-full mt-[12px]">
+      <div className="flex flex-col w-full mt-12">
         <ProgressView />
-        <div className="flex justify-between mt-[12px]">
+        <div className="flex justify-between mt-12">
           <div className="flex flex-row">
             <UsesAvartar />
-            <div className="ml-[4px] text-content_secondary ">
-              {verified} verified
+            <div className="ml-4 text-content_secondary ">
+              {verifiedStr} verified
             </div>
           </div>
           <div className="flex text-content_primary whitespace-nowrap overflow-ellipsis overflow-hidden body-s-bold">
-            {claimed}
-            <div className="ml-[4px] text-content_secondary whitespace-nowrap overflow-ellipsis overflow-hidden body-s-regular">
+            {claimedStr}
+            <div className="ml-4 text-content_secondary whitespace-nowrap overflow-ellipsis overflow-hidden body-s-regular">
               Claimed
             </div>
           </div>
@@ -257,7 +305,7 @@ const QuestCardOrg = (props: QCardProps) => {
       <TopView />
       <ProgressInfoView />
       {!btnHid ? <ButtonView /> : null}
-      <EndDescView />
+      {/* <EndDescView /> */}
     </div>
   );
 };

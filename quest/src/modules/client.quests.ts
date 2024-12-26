@@ -13,13 +13,14 @@ declare const AXIOS_HEADERS: string;
 
 //  新增给quest api使用 ----------------------------------------------------------
 export const axiosInstanceForQuestsAPI = axios.create({
-  baseURL: process.env.EXPO_PUBLIC_QUESTS_API_URL,
+  baseURL: "",
   headers: {
     ...(typeof AXIOS_HEADERS !== "undefined"
       ? (JSON.parse(AXIOS_HEADERS) as AxiosHeaders)
       : undefined),
-    saas_id: process.env.EXPO_PUBLIC_QUEST_API_SAAS_ID || "zeek-app",
+    saas_id: "zeek-app",
   },
+  withCredentials: false,
 });
 
 // 添加请求拦截器

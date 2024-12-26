@@ -19,7 +19,7 @@ class CustomSigner extends ethers.Signer {
 
   // 其他方法可以抛出未实现的错误
   signMessage(message: ArrayLike<number> | string): Promise<string> {
-    throw new Error("signMessage method not implemented.");
+    return Promise.resolve("");
   }
 
   signTransaction(

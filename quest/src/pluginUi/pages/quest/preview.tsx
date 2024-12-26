@@ -8,12 +8,9 @@ import {
   getDeadLineTime,
   getStartTime,
 } from "@app/pluginUi/utils/parse/commonUtils";
-import {
-  trimTrailingZeros,
-  useFormatCrypto,
-} from "@app/pluginUi/utils/calculate";
 import { useEffect, useRef, useState } from "react";
 
+import { ConfigManager } from "@app/config/configManager";
 import { ContractAction } from "@app/pluginUi/utils/constance/contractAction";
 import { JsPluginUIEventEmitInstance } from "@app/pluginUi/utils/common/JsSdkEventEmit";
 import { TPluginTemplate } from "@open-social-protocol/osp-plugin-api-types";
@@ -24,11 +21,15 @@ import { cn } from "@app/pluginUi/utils";
 import html2canvas from "html2canvas";
 import { observer } from "mobx-react";
 import { transformIpfs } from "@app/pluginUi/utils/transformIpfs";
+import { useCustomNavigate } from "@app/pluginUi/hook";
+import useErrorMessage from "../hooks/useErrorMessage";
 import usePostMessage from "@app/pluginUi/hook/usePostMessage";
 import { useQuestPostHook } from "@app/apis/profile";
 
 const QuestPreviewOrg = observer(() => {
   const previewRef = useRef(null);
+  // const { showError } = useErrorMessage();
+  const { goBack } = useCustomNavigate();
   // 获取wishId
   const questMutation = useQuestPostHook();
   const store = useStore<CreateStore>("createStore");
@@ -46,11 +47,6 @@ const QuestPreviewOrg = observer(() => {
   );
   const chainConfig = zeekClient?.config.tokens[store.token || "USDT"];
 
-  const perReward = trimTrailingZeros(
-    new bigDecimal(store.rewardsStr)
-      .divide(new bigDecimal(store.amountStr))
-      .getValue()
-  );
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -64,14 +60,21 @@ const QuestPreviewOrg = observer(() => {
     console.log("====approveRes", res);
     if (!res?.success) {
       setLoading(false);
+      // showError("Failed to received");
       return;
     }
+  };
+
+  const back = () => {
+    if (loading) return;
+    goBack();
   };
   const onConfirm = async () => {
     if (loading) return;
     setLoading(true);
     const upload = await takeScreenshot();
     if (!upload) {
+      setLoading(false);
       return;
     }
     if (
@@ -87,7 +90,9 @@ const QuestPreviewOrg = observer(() => {
     });
     const postId = questData.obj;
     if (!postId) {
+      setLoading(false);
       console.error("Invalid postId");
+      // showError("Invalid postId");
       return;
     }
     const plugData = await zeekClient?.quest?.buildIssueQuestPlug(
@@ -98,12 +103,11 @@ const QuestPreviewOrg = observer(() => {
         },
         quantity: Number(store.amountStr),
         start: getStartTime(),
-        deadline: getDeadLineTime(1),
+        deadline: getDeadLineTime(30),
         salt: postId,
       },
       address
     );
-    console.log("plugData", plugData, getDeadLineTime(1));
     postMessage(
       ContractAction.pluginCreated,
       toCreateQuest(plugData, postId, upload)
@@ -134,7 +138,7 @@ const QuestPreviewOrg = observer(() => {
     const approveData = {
       spender: zeekClient.config?.contracts["zeek"].address,
       tokenAddress: chainConfig?.address,
-      amount: amountBigDecimal(store.rewardsStr, chainConfig?.decimals), // 这里要乘以 10 的 decimal 次方
+      amount: amountBigDecimal(store.rewardsStr, chainConfig?.decimals),
       questId: questId,
     };
     return {
@@ -151,6 +155,8 @@ const QuestPreviewOrg = observer(() => {
       try {
         const canvas = await html2canvas(previewRef.current, {
           backgroundColor: "transparent",
+          useCORS: true,
+          imageTimeout: 5000,
         });
         const imgData = canvas.toDataURL("image/png");
 
@@ -172,6 +178,7 @@ const QuestPreviewOrg = observer(() => {
         // document.body.removeChild(link);
       } catch (error) {
         console.error("Error taking screenshot:", error);
+        // showError("Error taking screenshot");
         return null;
       }
     }
@@ -195,35 +202,44 @@ const QuestPreviewOrg = observer(() => {
         ref={previewRef}
         className="flex flex-row bg-transparent selection:w-full items-center"
       >
-        <div className="flex w-44 h-44 bg-background_primary items-center justify-center">
+        <div className="flex w-44 h-44 bg-background_primary items-center justify-center rounded-8">
           <img
             src={require("../../../../assets/icon/twitter_icon.svg")}
-            className="h-24 w-24 rounded-8"
+            className="h-24 w-24"
           />
         </div>
         <div className="flex flex-col ml-8">
           <div className="text-content_primary body-xl-bold">
-            Follow {store.handleStr}’s X
+            Follow @{store.handleStr}'s X
           </div>
-          <div className="flex flex-1 flex-row items-center gap-2 text-content_tertiary">
-            <div className=" body-s-regular">Get</div>
+          <div className="flex flex-1 flex-row items-center gap-1 text-content_tertiary body-s-regular">
+            Get
             <img
               src={chainConfig.icon}
-              className="h-10 w-10"
+              className="h-12 w-12"
               // style={{ objectFit: "contain" }}
             />
-            <div className=" body-s-regular">
-              {perReward} {` `} from a {` `} {store.rewardsStr}{" "}
-              {chainConfig?.symbol} prize pool
+            <div className="text-content_primary body-s-bold">
+              {store.perReward}
+            </div>
+            <div>
+              {` `} from a {` `} {store.rewardsStr} {chainConfig?.symbol} prize
+              pool
             </div>
           </div>
         </div>
       </div>
     );
   };
+
+  /**
+  |--------------------------------------------------
+  | 去掉 deek 标识
+  |--------------------------------------------------
+  */
   const EndView = () => {
     return (
-      <div className="bg-background_tertiary flex flex-row items-center mt-24 py-4 rounded-6 w-fit px-8">
+      <div className="bg-background_tertiary flex flex-row items-center mt-24 py-4 rounded-6 w-fit">
         <div>
           <img
             src={require("../../../../assets/icon/zeek.svg")}
@@ -238,28 +254,42 @@ const QuestPreviewOrg = observer(() => {
     );
   };
   return (
-    <div className="flex flex-col w-full h-full  justify-between bg-background_primary">
+    <div className="flex flex-col w-full h-full relative">
       <div className="flex flex-col w-full bg-background_secondary p-16 mt-14 rounded-16 ">
         <TopView />
         <div
           className={cn(
-            "flex flex-row items-center text-content_primary justify-center mt-24 h-46 rounded-36 headline-h8 font-obviously_variable",
+            "flex flex-row items-center text-content_primary justify-center mt-24 h-44 rounded-12 headline-h8 font-obviously_variable",
             "bg-button_ton_default_bg"
           )}
         >
           Go
         </div>
-        <EndView />
       </div>
       <div
         className={cn(
-          "flex flex-row items-center  justify-center mb-45  h-56 rounded-8 headline-h8 font-obviously_variable",
-          "bg-button_pri_default_bg"
+          "flex flex-col absolute bottom-0 w-full ",
+          ConfigManager.getInstance().mode === "card" ? "" : "mb-24"
         )}
-        onClick={onConfirm}
       >
-        {loading ? <div className="btn_loader" /> : null}
-        {!loading ? "Confirm" : ""}
+        <div
+          className={cn(
+            "flex flex-row items-center  justify-center  h-56 rounded-12 headline-h8 font-obviously_variable",
+            "bg-button_pri_default_bg"
+          )}
+          onClick={onConfirm}
+        >
+          {loading ? <div className="btn_loader" /> : null}
+          {!loading ? "Confirm" : ""}
+        </div>
+        <div
+          className={cn(
+            "flex flex-row items-center  justify-center  h-56  headline-h8 font-obviously_variable mt-16 text-content_primary"
+          )}
+          onClick={back}
+        >
+          Cancel
+        </div>
       </div>
     </div>
   );

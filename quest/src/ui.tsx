@@ -1,5 +1,6 @@
 import "./style.css";
 import "./drawing-board.js";
+import "./antd.css";
 
 import {
   BrowserRouter,
@@ -16,40 +17,36 @@ import {
   PluginIniter,
   TUIMsgEnum,
 } from "./pluginUi/component/Init";
-import { OspStore, useStore } from "./pluginUi/stores";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { QuestCreate, QuestPreview } from "./pluginUi/pages/quest";
 import React, { useEffect, useMemo, useState } from "react";
 
-import Action from "./pluginUi/pages/action";
-import Canvas from "./pluginUi/pages/canvas";
-import Create from "./pluginUi/pages/create";
+import { ConfigManager } from "./config/configManager";
 import KeepAlive from "./pluginUi/component/KeepAlive";
-import MintNft from "./pluginUi/pages/mintNft";
-import NftDetail from "./pluginUi/pages/nftDetail";
 import { NotFound } from "./pluginUi/pages/notFound";
-import Preview from "./pluginUi/pages/preview";
+import { QueryClientProvider } from "@tanstack/react-query";
 import { QuestDetail } from "./pluginUi/pages/questDetail";
 import ReactDOM from "react-dom/client";
-import { Spin } from "antd";
 import { TPluginUrlParams } from "@open-social-protocol/osp-plugin-api-types";
+import { axiosInstance } from "./modules/client";
+import { axiosInstanceForQuestsAPI } from "./modules/client.quests";
 import dayjs from "dayjs";
 import qs from "qs";
+import { queryClient } from "./modules/queryClient";
 import utc from "dayjs/plugin/utc";
-import { JsPluginUIEventEmitInstance } from "./pluginUi/utils/common/JsSdkEventEmit";
+import classNames from "classnames";
 
 dayjs.extend(utc);
 
 const UI = () => {
-  onmessage = async (event: MessageEvent) => {
-    const pluginMessage = event.data;
-    console.log("pluginMessage", pluginMessage);
-    if (pluginMessage.type === TUIMsgEnum.Refund) {
-      JsPluginUIEventEmitInstance.emitEvent(pluginMessage.type, {});
-    } else {
-      console.log("unknown pluginMessage");
-    }
-  };
+  // onmessage = async (event: MessageEvent) => {
+  //   const pluginMessage = event.data;
+  //   console.log("pluginMessage", pluginMessage);
+  //   if (pluginMessage.type === TUIMsgEnum.Refund) {
+  //     JsPluginUIEventEmitInstance.emitEvent(pluginMessage.type, {});
+  //   } else {
+  //     console.log("unknown pluginMessage");
+  //   }
+  // };
 
   const pluginParams = useMemo(() => {
     const params = qs.parse(window.location.search, {
@@ -66,7 +63,19 @@ const UI = () => {
     appId: pluginParams?.ospInfo?.appId,
     chainId: pluginParams?.ospInfo?.chainId,
     eoaAddr: pluginParams?.ospInfo?.eoaAddress,
+    idToken: pluginParams?.ospInfo?.idToken,
   };
+  ConfigManager.getInstance().initEnv(pluginParams?.ospInfo?.env, pluginParams.mode);
+  if (!process.env.PROXY_TARGET_ENV) {
+    axiosInstanceForQuestsAPI.defaults.baseURL =
+      ConfigManager.getInstance().deepApi;
+    axiosInstance.defaults.baseURL = ConfigManager.getInstance().deepApi;
+  }
+  console.log(
+    "ConfigManager",
+    ConfigManager.getInstance().ipfsApi,
+    axiosInstanceForQuestsAPI.defaults.baseURL
+  );
 
   const defaultRouter = {
     create: "/quest",
@@ -85,19 +94,13 @@ const UI = () => {
             />
           }
         >
-          <Route path="/create" element={<Create />} />
-          <Route path="/action" element={<Action />} />
-          <Route path="/canvas" element={<Canvas />} />
-          <Route path="/mintNft" element={<MintNft />} />
-          <Route path="/preview" element={<Preview />} />
-          <Route path="/nftDetail" element={<NftDetail />} />
           <Route path="/quest" element={<QuestCreate />} />
           <Route path="/questPreview" element={<QuestPreview />} />
           <Route
             path="/questDetail"
             element={
               <QuestDetail
-                profileId={pluginParams.ospInfo.userInfo.profileId}
+                profileId={pluginParams.ospInfo?.userInfo?.profileId}
                 referencedProfileId={pluginParams?.ospInfo?.feedInfo?.profileId}
                 referencedContentId={pluginParams?.ospInfo?.feedInfo?.contentId}
                 communityId={pluginParams?.ospInfo?.tribeInfo?.id}
@@ -117,20 +120,28 @@ const UI = () => {
   ]);
 
   return (
-    <PluginIniter>
-      <OspClientIniter {...initData}>
-        <QueryClientProvider client={new QueryClient()}>
-          {/* <BrowserRouter>
+    <div className={
+      classNames( {
+        "px-16" : pluginParams.mode === "page",
+        "bg-background_primary": pluginParams.mode === "page",
+        "bg-background_tertiary": pluginParams.mode === "card" && pluginParams.type !== "detail",
+      })
+    }>
+      <PluginIniter>
+        <OspClientIniter {...initData}>
+          <QueryClientProvider client={queryClient}>
+            {/* <BrowserRouter>
             <Routes>
 
             </Routes>
           </BrowserRouter> */}
-          <RouterProvider router={browserRouters} />
-        </QueryClientProvider>
-        <ModalView />
-        <PopupView />
-      </OspClientIniter>
-    </PluginIniter>
+            <RouterProvider router={browserRouters} />
+          </QueryClientProvider>
+          <ModalView />
+          <PopupView />
+        </OspClientIniter>
+      </PluginIniter>
+    </div>
   );
 };
 

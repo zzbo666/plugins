@@ -1,5 +1,4 @@
-const ipfsGateway =
-  process.env.EXPO_PUBLIC_IPFS_GATEWAY || "https://test.trexprotocol.com";
+import { ConfigManager } from "@app/config/configManager";
 
 export const transformIpfs = (
   ipfs: string,
@@ -17,11 +16,11 @@ export const transformIpfs = (
   if (width > 1) {
     const result = ipfs.replace(
       "ipfs://",
-      `${ipfsGateway}/cdn-cgi/image/width=${Math.floor(
+      `${ConfigManager.getInstance().ipfsApi}/cdn-cgi/image/width=${Math.floor(
         width
       )},quality=${quality}/ipfs/`
     );
     return result;
   }
-  return ipfs.replace("ipfs://", `${ipfsGateway}/ipfs/`);
+  return ipfs.replace("ipfs://", `${ConfigManager.getInstance().ipfsApi}/ipfs/`);
 };

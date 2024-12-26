@@ -5,6 +5,7 @@ import "./from.css";
 
 import { CreateStore, OspStore, useStore } from "@app/pluginUi/stores";
 import { Currency, WishActivityExtension } from "@keccak256-evg/zeek-client";
+import { Input, Space } from "antd";
 import {
   getDeadLineTime,
   getStartTime,
@@ -12,42 +13,42 @@ import {
 import { useCacheLocation, useCustomNavigate } from "@app/pluginUi/hook";
 import { useEffect, useState } from "react";
 
+import { ConfigManager } from "@app/config/configManager";
 import { ContractAction } from "@app/pluginUi/utils/constance/contractAction";
-import { Input } from "antd";
 import { TPluginTemplate } from "@open-social-protocol/osp-plugin-api-types";
 import bigDecimal from "js-big-decimal";
+import classNames from "classnames";
 import { cn } from "@app/pluginUi/utils";
 import modal from "@app/pluginUi/utils/modal";
 import { observer } from "mobx-react";
 import useBalance from "../hooks/useBalance";
+import useErrorMessage from "../hooks/useErrorMessage";
 import { useGetQuestTokenRestrict } from "../hooks/useGetQuestTokenRestrict";
 // import useChainConfig from "../hooks/chainInfo";
 import useGetWishConfig from "../hooks/useGetWishConfig";
 import usePostMessage from "@app/pluginUi/hook/usePostMessage";
-import { useQuestPostHook } from "@app/apis/quest";
 
 const QuestCreateFromOrg = observer(() => {
-  const navigate = useCustomNavigate();
+  const { navigate } = useCustomNavigate();
   const location = useCacheLocation();
+  const { showError } = useErrorMessage();
   const store = useStore<CreateStore>("createStore");
   const ospStore = useStore<OspStore>("ospStore");
-  const postMessage = usePostMessage();
   const zeekClient = ospStore.zeekClient;
   const address = ospStore.aaAddress;
 
   const [token, setToken] = useState<string>();
   const [tokenList, setTokenList] = useState<Currency[]>([]);
   const [curTokenInfo, setTokenInfo] = useState<Currency>();
-
-  console.log("token-->", token);
+  console.log("env-->", process.env.PROXY_TARGET_ENV);
   const { data: tokenConfig, isLoading: isConfigLoading } = useGetWishConfig(
     token || "USDT",
     zeekClient
   );
+
   const { data: questRestrict, isLoading: isQuestRestrictLoading } =
     useGetQuestTokenRestrict(token, zeekClient);
 
-  console.log("tokenConfig", tokenConfig);
   // 最小发行 token 数量
   const minIssueTokensValue = tokenConfig?.minIssueTokens?.valueStr || "1.0";
   console.log("minIssueTokensValue", tokenConfig?.minIssueTokens);
@@ -76,7 +77,8 @@ const QuestCreateFromOrg = observer(() => {
     store.setInitInfo(
       blData?.balance || "0",
       minIssueTokensValue,
-      questRestrict
+      questRestrict,
+      curTokenInfo?.showDecimals || 8
     );
   }, [blData, minIssueTokensValue, questRestrict]);
 
@@ -93,7 +95,6 @@ const QuestCreateFromOrg = observer(() => {
     store.onChange("AMOUNT", value);
   };
   const showUSDC = () => {
-    store.clearRewardsError();
     modal.popShow({
       children: <CurrencyView />,
     });
@@ -103,7 +104,27 @@ const QuestCreateFromOrg = observer(() => {
   };
 
   const onPreview = async () => {
+    if (store.disableBtn) return;
     navigate("/questPreview");
+  };
+
+  const formatPositiveNumber = (value: string | number): string => {
+    let _value = String(value);
+    const regExp = /^(?!0\d)\d*(?:\.\d{0,5})?$/;
+    if (_value.startsWith(".")) {
+      _value = "";
+    }
+    return regExp.test(_value) ? _value : _value.slice(0, -1);
+  };
+
+  const formatInteger = (value: string | number): string => {
+    let _value = String(value);
+    // 使用正则表达式验证输入，确保只接受不以0开头的整数，并且不允许输入 0. 或 0.x
+    const regExp = /^(?!0$)(?!0\d)\d*$/;
+    if (_value.startsWith(".")) {
+      _value = "";
+    }
+    return regExp.test(_value) ? _value : _value.slice(0, -1);
   };
 
   const CurrencyView = () => {
@@ -111,11 +132,12 @@ const QuestCreateFromOrg = observer(() => {
       const { item } = info;
       return (
         <div
-          className="flex flex-row h-[64px] justify-between mr-[16px]"
+          className="flex flex-row h-64  justify-between mr-16"
           onClick={() => {
             setToken(item.symbol);
             setTokenInfo(item);
             store.onSetToken(item.symbol);
+            store.clearRewardsError();
             showClose();
           }}
         >
@@ -123,11 +145,11 @@ const QuestCreateFromOrg = observer(() => {
             <div>
               <img
                 src={item?.icon}
-                className="h-[32px] w-[32px]"
+                className="h-32 w-32"
                 style={{ objectFit: "contain" }}
               />
             </div>
-            <div className="text-content_primary ml-[8px] body-l-regular">
+            <div className="text-content_primary ml-8 body-l-regular">
               {item.symbol}
             </div>
           </div>
@@ -135,7 +157,7 @@ const QuestCreateFromOrg = observer(() => {
             <div className="flex items-center justify-center">
               <img
                 src={require("../../../../assets/icon/checked.svg")}
-                className="h-[20px] w-[20px]"
+                className="h-18 w-18"
                 style={{ objectFit: "contain" }}
               />
             </div>
@@ -146,20 +168,20 @@ const QuestCreateFromOrg = observer(() => {
     return (
       <div className="flex flex-col w-full  justify-end items-end">
         <div className="flex h-full w-full " onClick={showClose}></div>
-        <div className="h-[300px] w-full bg-background_secondary px-[24px] py-[24px]">
+        <div className="h-300 w-full bg-background_secondary px-24 py-24">
           <div className="flex flex-row justify-between">
             <div className="text-content_primary headline-h6">
               Select currency
             </div>
-            <div className="w-[32px] h-[32px]" onClick={showClose}>
+            <div className="w-32 h-32" onClick={showClose}>
               <img
                 src={require("../../../../assets/icon/clse.svg")}
-                className="h-[12px] w-[12px]"
+                className="h-12 w-12"
                 style={{ objectFit: "contain" }}
               />
             </div>
           </div>
-          <div className="mt-[24px]">
+          <div className="mt-24">
             {tokenList &&
               tokenList.map((item) => {
                 return <ItemView item={item} />;
@@ -171,8 +193,12 @@ const QuestCreateFromOrg = observer(() => {
   };
 
   return (
-    <div className="flex flex-col w-full h-full justify-between overflow-auto">
-      <div className="flex flex-col w-full h-full ">
+    <div className="flex w-full flex-1">
+      <div
+        className={classNames("flex flex-col w-full flex-1 overflow-auto", {
+          "mb-150": true,
+        })}
+      >
         <div className="text-content_tertiary body-m-regular mt-24">
           The X account you want to grow
         </div>
@@ -195,6 +221,7 @@ const QuestCreateFromOrg = observer(() => {
           <Input
             placeholder="@ x handle"
             className="w-full body-l-regular"
+            maxLength={15}
             onChange={handleChange}
             onFocus={() => store.onTheFocus("HANDLE")}
             onBlur={() => store.onTheFocus("HANDLE")}
@@ -221,13 +248,18 @@ const QuestCreateFromOrg = observer(() => {
             <div className="w-full h-full">
               <Input
                 placeholder={`Min ${
-                  isConfigLoading ? "--" : minIssueTokensValue + " " + token
+                  isConfigLoading ? "--" : minIssueTokensValue
                 }`}
-                className="body-xl-bold text-content_primary"
+                className="body-xl-bold text-content_primary px-0"
                 value={store.rewardsStr}
+                maxLength={11}
                 onChange={rewardsChange}
                 onFocus={() => store.onTheFocus("REWARDS")}
                 onBlur={() => store.onTheFocus("REWARDS")}
+                onInput={(e) => {
+                  const value = e.currentTarget.value;
+                  e.currentTarget.value = formatPositiveNumber(value);
+                }}
               />
             </div>
             <div className="w-140  h-24 flex flex-row items-center justify-center">
@@ -278,47 +310,55 @@ const QuestCreateFromOrg = observer(() => {
           className={cn(
             "bg-background_overlay10 px-8 py-12 mt-24 rounded-8",
             store.amountError
-              ? "border-[2px] border-feedback_error border-solid"
+              ? "border-2 border-feedback_error border-solid"
               : ""
           )}
         >
           <div className="text-content_secondary body-m-regular">
             Task Quota
           </div>
-          <div className="px-6 py-2 text-content_primary rounded-4 flex flex-1 flex-row items-center">
+          <div className="py-2 text-content_primary rounded-4 flex flex-1 flex-row items-center">
             <Input
-              placeholder="Amount"
-              className="body-xl-bold flex flex-1"
+              placeholder="0"
+              maxLength={5}
+              type="digit"
+              value={store.amountStr}
+              className="body-xl-bold flex flex-1 px-0"
               onChange={amountChange}
               onFocus={() => store.onTheFocus("AMOUNT")}
               onBlur={() => store.onTheFocus("AMOUNT")}
+              onInput={(e) => {
+                const value = e.currentTarget.value;
+                e.currentTarget.value = formatInteger(value);
+              }}
             />
             <div className="text-content_tertiary body-l-regular">Users</div>
           </div>
           <div className="flex flex-row text-content_tertiary whitespace-nowrap overflow-ellipsis overflow-hidden body-s-regular">
             Reward per follow:
-            <div className="ml-[4px] mr-[4px] flex flex-row text-content_primary whitespace-nowrap overflow-ellipsis overflow-hidden body-s-bold">
-              <div className="ml-[4px] text-content_primary whitespace-nowrap overflow-ellipsis overflow-hidden body-s-bold">
-                {store.amountMinValue}
+            <div className="ml-4 mr-4 flex flex-row text-content_primary whitespace-nowrap overflow-ellipsis overflow-hidden body-s-bold">
+              <div className="ml-4 text-content_primary whitespace-nowrap overflow-ellipsis overflow-hidden body-s-bold">
+                {store.perReward} {` `} {token}
               </div>
-              USDC
+              {store.amountStr && store.rewardsStr && (
+                <div className="body-s-regular whitespace-pre">{` (min ${store.amountMinValue})`}</div>
+              )}
             </div>
           </div>
         </div>
         {store.amountError ? (
-          <div className="text-feedback_error">Min 0.1</div>
+          <div className="text-feedback_error">{store.amountErrorValue}</div>
         ) : null}
       </div>
+      {ConfigManager.getInstance().mode === "card" ? null : <Space />}
 
       <div
         className={cn(
-          "flex flex-row items-center justify-center mb-45 rounded-8 body-l-regular mt-150",
+          "fixed bottom-0 flex mx-auto h-56 rounded-12 items-center z-100 justify-center headline-h8 font-obviously_variable",
           store.disableBtn
-            ? "text-button_pri_disabled_bg"
-            : "text-button_pri_default_con",
-          store.disableBtn
-            ? "bg-background_overlay10"
-            : "bg-button_pri_default_bg"
+            ? "bg-button_pri_disabled_bg"
+            : "bg-button_pri_default_bg",
+          ConfigManager.getInstance().mode === "card" ? "w-full" : "w-360"
         )}
         onClick={onPreview}
       >

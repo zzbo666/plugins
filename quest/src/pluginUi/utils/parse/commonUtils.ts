@@ -1,3 +1,4 @@
+import { ConfigManager } from "@app/config/configManager";
 import { RoundingModes } from "js-big-decimal/dist/node/roundingModes";
 import bigDecimal from "js-big-decimal";
 
@@ -53,7 +54,14 @@ export const getStartTime = () => {
  */
 export const getDeadLineTime = (deadLine: number = 30) => {
   const currentDate = new Date();
-  const millisecondsInADay = 24 * 60 * 60 * 1000;
+  let millisecondsInADay = 0;
+  const isProd = ConfigManager.getInstance().env === "prod";
+  if (isProd) {
+    millisecondsInADay = 24 * 60 * 60 * 1000;
+  } else {
+    millisecondsInADay = 60 * 1000;
+  }
+  console.log("millisecondsInADay", millisecondsInADay);
   const futureDate = new Date(
     currentDate.getTime() + deadLine * millisecondsInADay
   );
@@ -106,6 +114,52 @@ export const formatPow = (
 export function trimTrailingZeros(value: string): string {
   return value.replace(/(\.\d*?[1-9])0+$|\.0*$/, "$1");
 }
+
+export const formatKMBNumber = (
+  num: number | string,
+  decimal: number = 2,
+  roundingMode?: RoundingModes
+) => {
+  const number = Number(num);
+  const mode = roundingMode || bigDecimal.RoundingModes.DOWN;
+  if (number >= 1000000000) {
+    const formattedNumber = number / 1000000000;
+    return `${new bigDecimal(formattedNumber)
+      .round(decimal, mode)
+      .getValue()}B`;
+  } else if (number >= 1000000) {
+    const formattedNumber = number / 1000000;
+    return `${new bigDecimal(formattedNumber)
+      .round(decimal, mode)
+      .getValue()}M`;
+  } else if (number >= 1000) {
+    const formattedNumber = number / 1000;
+    return `${new bigDecimal(formattedNumber)
+      .round(decimal, mode)
+      .getValue()}K`;
+  } else {
+    return number.toString();
+  }
+};
+
+export const formatNumberPrecision = (
+  value: number | string,
+  decimal: number = 2,
+  roundingMode?: RoundingModes,
+  trailingZero: boolean = true,
+  format: boolean = false
+) => {
+  try {
+    if (isNaN(Number(value))) {
+      return "--";
+    }
+    const data = new bigDecimal(value).round(decimal, roundingMode).getValue();
+    const reDeatl = trailingZero ? trimTrailingZeros(data) : data;
+    return format ? new bigDecimal(reDeatl).getPrettyValue() : reDeatl;
+  } catch (error) {
+    return "--";
+  }
+};
 
 export const QuestRowStatus = {
   Audience: "", // 路人视角

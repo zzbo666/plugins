@@ -1,5 +1,7 @@
-import { TQuestEnum, TQuestRoleEnmu } from "./types";
+import { TQuestEnum, TQuestRoleEnum } from "./types";
 import { computed, makeObservable, observable } from "mobx";
+
+import { QuestRowStatus } from "../utils/parse/commonUtils";
 import { QuestVo } from "@app/apis/feed";
 import dayjs from "dayjs";
 
@@ -13,6 +15,8 @@ export class DetailStore {
 
   @observable refundLoading: boolean = false;
 
+  @observable isLogin: boolean = false;
+
   private timeoutres: number | NodeJS.Timeout;
   constructor() {
     makeObservable(this);
@@ -25,6 +29,10 @@ export class DetailStore {
     this.isH5 = width < 768;
     this.data = detail;
   }
+  setInitLogin(islogin: boolean) {
+    this.isLogin = islogin;
+  }
+
   /**
    *  任务是否 “到期”  根据  deadline 判断
    * refund 之后 status 为 closed
@@ -38,6 +46,7 @@ export class DetailStore {
     const timeLastCheck = dayjs.utc(this.data?.deadline);
     const timeDiffSeconds = timeLastCheck.diff(timeNow, "second");
     const res = timeDiffSeconds <= 0;
+    console.log("expired-->", res);
     return res;
   }
   /**
@@ -46,7 +55,7 @@ export class DetailStore {
    */
   @computed get showGoVerify() {
     const goVerify =
-      this.data?.role === TQuestRoleEnmu.Audience &&
+      this.data?.role === TQuestRoleEnum.Audience &&
       this.data?.status === TQuestEnum.Active;
     return goVerify;
   }
@@ -56,31 +65,60 @@ export class DetailStore {
    */
   @computed get showRefund() {
     const refund =
-      this.data?.role === TQuestRoleEnmu.OWNER &&
+      this.data?.role === TQuestRoleEnum.OWNER &&
       this.data?.status === TQuestEnum.Active &&
       this.expired;
-
     return refund;
   }
   /**
-   * 任务是否结束
-   */
+  |--------------------------------------------------
+  | 是否已经结束了任务
+  | 用户视角：过期了任务就结束了 或者 任务状态为 closed 或者 finished
+  | OWNER视角：任务状态为 closed 并且 过期了任务
+  |--------------------------------------------------
+  */
   @computed get isEnded() {
     const ended =
-      this.data?.role === TQuestRoleEnmu.Audience
-        ? this.expired && this.data?.status === TQuestEnum.Active
-        : this.data?.role === TQuestRoleEnmu.OWNER
-        ? this.expired && this.data?.status === TQuestEnum.Closed
+      this.data?.role === TQuestRoleEnum.Audience
+        ? this.expired ||
+          this.data?.status === TQuestEnum.Closed ||
+          this.data?.status === TQuestEnum.Finished
+        : this.data?.role === TQuestRoleEnum.OWNER
+        ? this.data?.status === TQuestEnum.Closed && this.expired
         : false;
+
     return ended;
   }
-  @computed get buttonType(): "install" | "end" | "refund" | "hide" {
+
+  /**
+  |--------------------------------------------------
+  | 用户视角: 是否已经完成了任务
+  |--------------------------------------------------
+  */
+  @computed get isVerified() {
+    return (
+      this.data?.role === QuestRowStatus.PARTICIPANT_CLAIMED ||
+      this.data?.role === QuestRowStatus.PARTICIPANT_UNCLAIM
+    );
+  }
+
+  @computed get buttonType():
+    | "install"
+    | "end"
+    | "refund"
+    | "hide"
+    | "verified" {
+    if (!this.isLogin) {
+      return "install";
+    }
     if (this.isEnded) {
       return "end";
     } else if (this.showGoVerify) {
       return "install";
     } else if (this.showRefund) {
       return "refund";
+    } else if (this.isVerified) {
+      return "verified";
     } else {
       return "hide";
     }

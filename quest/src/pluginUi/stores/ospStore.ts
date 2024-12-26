@@ -1,3 +1,4 @@
+import { CHAIN_ID, ID_TOKEN } from "@app/modules/constant";
 import {
   Environment,
   ZeekClient,
@@ -7,7 +8,6 @@ import { TypedDataDomain, TypedDataField, ethers } from "ethers";
 import { action, computed, makeObservable, observable } from "mobx";
 
 import CustomSigner from "./CustomSigner";
-import { ID_TOKEN } from "@app/modules/constant";
 import { OspClient } from "@open-social-protocol/osp-client";
 import { OspInitProps } from "../component/Init/types";
 
@@ -31,14 +31,20 @@ export class OspStore {
 
   @action
   useEffect = async (props: OspInitProps) => {
-    const { aaAddr, env, accessToken, chainId, eoaAddr } = props;
+    const { aaAddr, env, accessToken, chainId, eoaAddr, appId, idToken } =
+      props;
     // 将 osp 的 idToken 存起来
-    console.log("初始化", props);
-    localStorage.setItem(ID_TOKEN, accessToken);
+    console.log("初始化", accessToken, idToken);
+    localStorage.setItem(ID_TOKEN, idToken);
+    const chain_id = parseInt(chainId, 16).toString();
+    localStorage.setItem(CHAIN_ID, chain_id);
+    if (!accessToken) {
+      return;
+    }
     const zeekClientEnv = env === "dev" ? "alpha" : env;
     const zeekEnvironment = await ZeekEnvironment.create({
       env: zeekClientEnv as Environment,
-      chainId,
+      chainId: chain_id,
       getHeaders: async () => {
         // 这里返回 {} 也可以的
         return {};
@@ -63,7 +69,7 @@ export class OspStore {
     this.aaAddress = aaAddr;
     this.ospClient = await this.createOsp(
       zeekClientEnv,
-      zeekEnvironment?.chainConfig?.osp?.appId,
+      appId,
       chainId,
       accessToken,
       customSigner
@@ -78,8 +84,7 @@ export class OspStore {
   ) => {
     return OspClient.create({
       env: env as Environment,
-      storage: window.localStorage,
-      app_id: "92302016247759369",
+      app_id: appId,
       chain_id: typeof chainId === "string" ? parseInt(chainId, 16) : chainId,
       login_options: {
         accessToken: accessToken,

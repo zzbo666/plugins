@@ -1,23 +1,3 @@
-export type MintNft = {
-  zoraUrl?: string;
-};
-
-export type Restart = {
-  status?: boolean;
-};
-
-// common action 数据结构
-export type IActionContext = {
-  name?: string;
-  type?: "NEXT" | "MINT" | "RESTART";
-  data?: Storyboard | MintNft | Restart;
-  position?: number;
-};
-
-export type Storyboard = {
-  img?: string;
-  actions?: IActionContext[];
-};
 
 export enum TQuestEnum {
   // start = "start",
@@ -36,10 +16,10 @@ export type TDetailTypeMap = {
   [key in TQuestType]: string;
 };
 
-export enum TQuestRoleEnmu {
+export enum TQuestRoleEnum {
   Audience = "", // 路人视角
   OWNER = "OWNER", // 发布者
   PARTICIPANT_CLAIMED = "PARTICIPANT_CLAIMED", // 已参与已领奖
   PARTICIPANT_UNCLAIM = "PARTICIPANT_UNCLAIM", // 已参与未领奖
 }
-export type TQuestRoleType = keyof typeof TQuestRoleEnmu;
+export type TQuestRoleType = keyof typeof TQuestRoleEnum;

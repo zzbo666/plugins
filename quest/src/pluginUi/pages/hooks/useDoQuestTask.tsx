@@ -5,14 +5,15 @@ import { openURL, validURL } from "@app/pluginUi/utils/parse/commonUtils";
 import { ID_TOKEN } from "@app/modules/constant";
 import { QueryMap } from "@app/pluginUi/utils/queryMap";
 import { encodeURIStrWithExtensions } from "@app/pluginUi/utils/parse/encode";
-import { hostConfig } from "../config/host";
-import { toast } from "react-toastify";
+import { getHostConfig } from "../config/host";
 import { useCustomerSignHook } from "@app/apis/customer";
+import useErrorMessage from "./useErrorMessage";
 import { useQuestVerifyHook } from "@app/apis/quest";
 import { useState } from "react";
 
-export const useDoQuestTask = (questId: string, zeekClient: ZeekClient) => {
+export const useDoQuestTask = (env: string, zeekClient: ZeekClient) => {
   const [loading, setLoading] = useState(false);
+  const { showError } = useErrorMessage();
   const { mutateAsync: questVerifyMutateAsync } = useQuestVerifyHook();
   const { data: customerSign } = useCustomerSignHook(
     {
@@ -77,6 +78,7 @@ export const useDoQuestTask = (questId: string, zeekClient: ZeekClient) => {
         if (res?.msgKey === "100020") {
           if (!customerSign?.success || !customerSign?.obj?.sign) {
             console.error("get deek customer sign error");
+            setLoading(false);
             return;
           }
           const encodeSign = encodeURIStrWithExtensions(
@@ -86,7 +88,7 @@ export const useDoQuestTask = (questId: string, zeekClient: ZeekClient) => {
             encodeSign
           )}&code_challenge=mugen&code_challenge_method=plain&client_id=ZXFad3d4TDNRNE01SDlaWWZySVc6MTpjaQ`;
 
-          const redirectUri = `${hostConfig.taskLandingHost}/task`;
+          const redirectUri = `${getHostConfig(env).taskLandingHost}/task`;
           const taskUrl =
             verifyUrl + "&redirect_uri=" + decodeURIComponent(redirectUri);
 
@@ -97,11 +99,11 @@ export const useDoQuestTask = (questId: string, zeekClient: ZeekClient) => {
           });
           setLoading(false);
           return;
-        } else if (res?.msgKey === "100021") {
-          toast.success("Please go to follow this Twitter account first");
+        } else if (res?.msgKey === "100028") {
+          showError("The service is currently busy. Please try again later.");
         } else {
           // 其他错误
-          toast.success("Failed to verify, please try later");
+          showError("Task not verified. Please try again.");
         }
         setLoading(false);
       }

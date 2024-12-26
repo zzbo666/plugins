@@ -1,6 +1,9 @@
 import { ContractAction } from "../pluginUi/utils/constance/contractAction";
+console.log("pluginApi:", pluginApi.mode)
 if (pluginApi.type === "detail") {
   pluginApi.uiApi.showUI(0.67);
+}else if(pluginApi.type === "create" && pluginApi.mode === "card"){
+  pluginApi.uiApi.showUI(1.461);
 }
 
 pluginApi.onEvent("onInitializing", () => {
@@ -53,7 +56,7 @@ pluginApi.uiApi.onMessage((data: { action: string; payload: any }) => {
           opensocial: {
             extensions: [
               {
-                type: "object",
+                type: "Object",
                 key: payload?.preview?.type,
                 value: payload?.preview,
               },
@@ -67,7 +70,7 @@ pluginApi.uiApi.onMessage((data: { action: string; payload: any }) => {
         console.log(
           "====createOspPostDat===>opensocial==>",
           JSON.stringify({
-            type: "object",
+            type: "Object",
             key: payload?.preview?.type,
             value: payload?.preview,
           })

@@ -4,7 +4,7 @@ import type {
   AxiosRequestConfig,
   AxiosResponse,
 } from "axios";
-import { EOA_ADDRESS, ID_TOKEN } from "./constant";
+import { CHAIN_ID, EOA_ADDRESS, ID_TOKEN } from "./constant";
 
 import axios from "axios";
 
@@ -14,7 +14,7 @@ import axios from "axios";
 // import { sessionKey } from "@/configs/key";
 // import { v4 as uuidv4 } from "uuid";
 
-declare const AXIOS_BASE: string;
+// declare const AXIOS_BASE: string;
 declare const AXIOS_HEADERS: string;
 
 /**
@@ -47,14 +47,15 @@ export type ResponseConfig<TData = unknown> = {
 };
 
 export const axiosInstance = axios.create({
-  baseURL: typeof AXIOS_BASE !== "undefined" ? AXIOS_BASE : undefined,
+  baseURL: "",
   headers: {
     ...(typeof AXIOS_HEADERS !== "undefined"
       ? (JSON.parse(AXIOS_HEADERS) as AxiosHeaders)
       : undefined),
-    saas_id: process.env.EXPO_PUBLIC_SAAS_ID || "zeek",
+    saas_id: "zeek",
   },
-  withCredentials: true, // 添加这一行
+  withCredentials: false,
+  
 });
 
 //添加请求拦截器
@@ -68,10 +69,12 @@ axiosInstance.interceptors.request.use(
     // 在请求头中添加 JWT Token
     const token = localStorage.getItem(ID_TOKEN);
     const eoaAddress = localStorage.getItem(EOA_ADDRESS);
+    const chainId = localStorage.getItem(CHAIN_ID);
     if (token) {
       // config.headers['Authorization'] = `Bearer ${token}`;
       console.log(config.url);
       config.headers[ID_TOKEN] = `${token}`;
+      config.headers[CHAIN_ID] = `${chainId}`;
     }
     // if (!isWeb) {
     //   config.headers["Accept-Encoding"] = `*`;

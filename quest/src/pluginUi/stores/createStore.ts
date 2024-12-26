@@ -4,6 +4,7 @@ import { TINPUT_TYPE } from "@app/types";
 import bigDecimal from "js-big-decimal";
 import { isNumber } from "lodash";
 import rcTool from "../utils/rcTool";
+import { trimTrailingZeros } from "../utils/calculate";
 
 export class CreateStore {
   @observable isLogin: boolean = false;
@@ -24,6 +25,7 @@ export class CreateStore {
   @observable rewardsStr: string = "";
   @observable amountStr: string = "";
   @observable token: string = "";
+  @observable perReward: string = "--";
 
   // Confirm button
   @observable allowConfirm: boolean = false;
@@ -35,17 +37,22 @@ export class CreateStore {
   private questRestrict: any;
   private minIssueTokensValue: string = "";
   private balance: string = "";
+  // 初始值设置为8，安全一点
+  private showDecimal: number = 8;
   constructor() {
     makeObservable(this);
   }
   setInitInfo(
     balance: string,
     minIssueTokensValue: string,
-    questRestrict: any
+    questRestrict: any,
+    showDecimal: number
   ) {
     this.questRestrict = questRestrict;
     this.minIssueTokensValue = minIssueTokensValue;
     this.balance = balance;
+    this.showDecimal = showDecimal;
+    console.log("setInitInfo-->", this.questRestrict, this.minIssueTokensValue);
   }
   strTrue = (value: string) => {
     return rcTool.isTrue(value);
@@ -54,7 +61,10 @@ export class CreateStore {
     if (
       this.strTrue(this.handleStr) &&
       this.strTrue(this.rewardsStr) &&
-      this.strTrue(this.amountStr)
+      this.strTrue(this.amountStr) &&
+      !this.handleError &&
+      !this.rewardsError &&
+      !this.amountError
     ) {
       this.disableBtn = false;
     } else {
@@ -91,6 +101,7 @@ export class CreateStore {
     } else {
       this.amountMinValue = "--";
     }
+    this.perReward = this.checkPerReward();
     this.checkConfirm();
   };
 
@@ -104,17 +115,6 @@ export class CreateStore {
       amount: this.amountStr,
       token: this.token,
     };
-  };
-
-  // 格式化 总奖金  和  每份奖金
-  formatPositiveNumber = (value: string | number): string => {
-    let _value = String(value);
-    // 使用正则表达式来匹配允许的字符，纯整数；带有最多两位小数的浮点数；不能以0和小数点开头
-    const regExp = /^(?!0\d)\d*(?:\.\d{0,2})?$/;
-    if (_value.startsWith(".")) {
-      _value = "";
-    }
-    return regExp.test(_value) ? _value : _value.slice(0, -1);
   };
 
   // 校验输入的 x handle 是否合法
@@ -136,7 +136,7 @@ export class CreateStore {
     if (!rcTool.isNumberType(Number(currentValue))) {
       return "Please enter the number";
     }
-    if (parseFloat(currentValue) < +this.minIssueTokensValue) {
+    if (parseFloat(currentValue) < parseFloat(this.minIssueTokensValue)) {
       return `Min ${this.minIssueTokensValue}`;
     }
     const balance = this.balance;
@@ -153,9 +153,10 @@ export class CreateStore {
     if (!rcTool.isNumberType(Number(value))) {
       return "Please enter the number";
     }
-    const amount = Number(this.amountStr);
+    console.log("checkEveryAmount-->", parseFloat(value) === 0);
+    const amount = Number(this.rewardsStr);
     const slot = Number(value);
-    if (parseFloat(value) === 0) {
+    if (parseFloat(value) === 0 || parseFloat(this.rewardsStr) === 0) {
       return "Please check your input";
     } else if (
       !!amount &&
@@ -164,32 +165,61 @@ export class CreateStore {
         new bigDecimal(this.questRestrict?.minValueStr)
       ) < 0
     ) {
-      return "Rewards are on the low side";
+      return `Min ${this.questRestrict?.minValueStr}`;
     }
     return undefined;
   };
   // 每份最小值
   getEveryAmountMin = () => {
-    const amount = Number(this.rewardsStr);
-    const slot = Number(this.amountStr);
+    return this.questRestrict?.minValueStr;
+  };
+  checkPerReward = () => {
+    const amount = new bigDecimal(this.rewardsStr);
+    const slot = new bigDecimal(this.amountStr);
+    console.log("result-->111", amount, slot);
     let res = "--";
+    /**
+    |--------------------------------------------------
+    | Deek: 原有逻辑是保留3位小数,如果是 eth 的话，保留3位小数就精度缺失了
+    | 所以, 这里需要用 showDecimal 做数值处理
+    |--------------------------------------------------
+    */
+    if (
+      slot.compareTo(new bigDecimal(0)) === 0 ||
+      amount.compareTo(new bigDecimal(0)) === 0
+    ) {
+      return res;
+    }
     if (!!amount && !!slot) {
-      const result = Math.trunc((amount / slot) * 1000) / 1000;
+      // const result = Math.trunc((amount / slot) * 1000) / 1000;
+
+      const result = amount.divide(slot, this.showDecimal);
+      console.log("result-->222", result);
       if (
-        new bigDecimal(result).compareTo(
-          new bigDecimal(this.questRestrict?.minValueStr)
-        ) < 0
+        result.compareTo(new bigDecimal(this.questRestrict?.minValueStr)) < 0
       ) {
         res = this.questRestrict?.minValueStr || "0.001";
+        this.amountError = true;
+        this.amountErrorValue = `Min ${this.questRestrict?.minValueStr}`;
       } else {
-        res = String(parseFloat(result.toFixed(3))); // 保留三位小数
+        this.amountError = false;
+        res = trimTrailingZeros(
+          result
+            .round(this.showDecimal, bigDecimal.RoundingModes.DOWN)
+            .getValue()
+        );
+        // String(parseFloat(result.toFixed(3)));
       }
     }
+    console.log("result-->333", res);
     return res;
   };
+
   clearRewardsError = () => {
     this.rewardsError = false;
     this.rewardsStr = "";
+    this.amountError = false;
+    this.perReward = "--";
   };
 }
 

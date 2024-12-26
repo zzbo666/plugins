@@ -1,11 +1,18 @@
-import { useMemoizedFn, useUnmount } from "ahooks";
-import { NavigateFunction, NavigateOptions, To, useLocation, useNavigate } from "react-router-dom";
-import urlParse from "url-parse";
 import * as qs from "qs";
+
+import {
+  NavigateFunction,
+  NavigateOptions,
+  To,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
+import { useMemoizedFn, useUnmount } from "ahooks";
+
+import urlParse from "url-parse";
 import { useMemo } from "react";
 
-
-type CallBackType = (params: any) => void
+type CallBackType = (params: any) => void;
 class CalllBackManager {
   callBack: { [key: string]: Function } = {};
 
@@ -33,46 +40,54 @@ class CalllBackManager {
       delete this.callBack[state?.__onCallBackId];
     }
   }
-
 }
 
 const calllBackManager = new CalllBackManager();
 
 export function useCustomNavigate() {
   const navigateOrg = useNavigate();
-  const navigate: NavigateFunction = useMemoizedFn((to: To | number, options: NavigateOptions = {}) => {
-    if (typeof to === "number") {
-      navigateOrg(to);
-    } else {
-      if (options?.state?.onCallBack) {
-        options.state = calllBackManager.wrapState(options?.state);
-      }
+  const navigate: NavigateFunction = useMemoizedFn(
+    (to: To | number, options: NavigateOptions = {}) => {
+      if (typeof to === "number") {
+        navigateOrg(to);
+      } else {
+        if (options?.state?.onCallBack) {
+          options.state = calllBackManager.wrapState(options?.state);
+        }
 
-      if (typeof to === "string") {
-        const parsedURL = urlParse(to);
-        const result = qs.parse(parsedURL.query, {
-          ignoreQueryPrefix: true,
-        });
-        result.timestamp = `${new Date().getTime()}`;
-        console.log("parsedURL:", parsedURL, result);
-        const newTo = `${parsedURL.pathname}?${qs.stringify(result)}`;
-        navigateOrg(newTo, options);
-        return;
+        if (typeof to === "string") {
+          const parsedURL = urlParse(to);
+          const result = qs.parse(parsedURL.query, {
+            ignoreQueryPrefix: true,
+          });
+          result.timestamp = `${new Date().getTime()}`;
+          console.log("parsedURL:", parsedURL, result);
+          const newTo = `${parsedURL.pathname}?${qs.stringify(result)}`;
+          navigateOrg(newTo, options);
+          return;
+        }
+        navigateOrg(to, options);
       }
-      navigateOrg(to, options);
     }
-  });
-  return navigate;
+  );
 
+  // 返回上个页面的功能
+  const goBack = () => {
+    navigateOrg(-1);
+  };
+
+  return { navigate, goBack };
 }
 
 export function useCacheLocation() {
   const textLocation = useLocation();
-  const cacheLocation = useMemo(()=>{
+  const cacheLocation = useMemo(() => {
     return textLocation;
   }, []);
   if (cacheLocation.state?.__onCallBackId) {
-    cacheLocation.state.onCallBack = calllBackManager.getCallBack(cacheLocation.state);
+    cacheLocation.state.onCallBack = calllBackManager.getCallBack(
+      cacheLocation.state
+    );
   }
 
   useUnmount(() => {
@@ -80,4 +95,3 @@ export function useCacheLocation() {
   });
   return cacheLocation;
 }
-

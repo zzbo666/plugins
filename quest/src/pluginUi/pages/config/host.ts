@@ -20,4 +20,6 @@ const configs: {
   },
 };
 
-export const hostConfig = configs[process.env.PUBLIC_ENV || "dev"];
+export const getHostConfig = (env: string): IConfig => {
+  return configs[env] || configs["dev"];
+};

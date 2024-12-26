@@ -1,7 +1,7 @@
 
 
 
-if (pluginApi.type === "preview") {
+if (pluginApi.type === "ssr") {
   require("./codeJs/preview")
 } else {
   require("./codeJs/mainCode")

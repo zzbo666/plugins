@@ -8,6 +8,7 @@ export type OspInitProps = {
   appId: string;
   chainId: string;
   eoaAddr: string;
+  idToken: string;
 };
 
 export type OspIniterProps = {
