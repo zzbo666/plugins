@@ -1,6 +1,0 @@
-{
-    "apiManifest": "./dist/manifest.json",
-    "apiStatic": "./dist",
-    "apiPort": 8099,
-    "envPath": ".env.development"
-}
