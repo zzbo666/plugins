@@ -1,0 +1,49 @@
+{
+    "name": "Wish",
+    "version": "1.0.0",
+    "description": "Wish Plugin",
+    "projectPath": "wish",
+    "main": "./code.js",
+    "ui": "./ui.html",
+    "category": "PLUGIN",
+    "networkAccess": {
+        "allowDomains": [
+            "*"
+        ]
+    },
+    "capabilities": [
+        "ACTIVITY"
+    ],
+    "abis": [
+        {
+            "group": "wish",
+            "address": "0x375E40F1f4759d1e318f552EaeBF51746E239184",
+            "abi": [
+
+            ]
+        }
+    ],
+    "businesses": [
+        {
+            "verb": "WISH",
+            "capability": "ACTIVITY"
+        }
+    ],
+    "extensionData": {
+        "currency": {
+            "type": "address"
+        },
+        "amount": {
+            "type": "uint256"
+        },
+        "restrict": {
+            "type": "uint256"
+        },
+        "start": {
+            "type": "uint256"
+        },
+        "deadline": {
+            "type": "uint256"
+        }
+    }
+}
