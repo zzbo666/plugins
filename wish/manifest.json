@@ -19,7 +19,7 @@
   },
   "abis": [
     {
-      "groupName": "wish",
+      "group": "wish",
       "address": "0x375E40F1f4759d1e318f552EaeBF51746E239184",
       "abi": []
     }
