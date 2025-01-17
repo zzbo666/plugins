@@ -1,7 +1,7 @@
 {
-  "name": "Wish",
+  "name": "Wishs",
   "version": "1.0.0",
-  "description": "Wish Quest",
+  "description": "Deek Wish",
   "projectPath": "wish",
   "main": "./code.js",
   "ui": "./ui.html",
