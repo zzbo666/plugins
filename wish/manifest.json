@@ -30,11 +30,6 @@
       "capability": "ACTIVITY"
     }
   ],
-  "reactionStats": {
-    "user": [
-      "usd_amount"
-    ]
-  },
   "extensionData": {
     "currency": {
       "type": "address"
