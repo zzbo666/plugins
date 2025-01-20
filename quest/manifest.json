@@ -28,7 +28,7 @@
   ],
   "businesses": [
     {
-      "verb": "POST",
+      "verb": "QUEST",
       "subVerb": "QUEST",
       "capability": "ACTIVITY"
     },
