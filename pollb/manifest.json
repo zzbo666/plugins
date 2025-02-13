@@ -1,0 +1,28 @@
+{
+    "name": "Pollb",
+    "version": "1.0.0",
+    "description": "Pollb plugin",
+    "projectPath": "pollb",
+    "category": "PLUGIN",
+    "main": "",
+    "ui": "./ui.html",
+    "networkAccess": {
+      "allowDomains": [
+        "*"
+      ]
+    },
+    "capabilities": [
+      "ACTIVITY"
+    ],
+    "businesses": [
+      {
+        "verb": "POLL",
+        "capability": "ACTIVITY"
+      }
+    ],
+    "extensionData": {
+      "pollId": {
+        "type": "string"
+      }
+    }
+  }
