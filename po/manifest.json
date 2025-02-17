@@ -1,0 +1,28 @@
+{
+    "name": "Po",
+    "version": "1.0.0",
+    "description": "Po plugin",
+    "projectPath": "po",
+    "category": "PLUGIN",
+    "main": "",
+    "ui": "./ui.html",
+    "networkAccess": {
+      "allowDomains": [
+        "*"
+      ]
+    },
+    "capabilities": [
+      "ACTIVITY"
+    ],
+    "businesses": [
+      {
+        "verb": "PO",
+        "capability": "ACTIVITY"
+      }
+    ],
+    "extensionData": {
+      "pollId": {
+        "type": "string"
+      }
+    }
+  }
