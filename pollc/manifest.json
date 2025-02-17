@@ -1,0 +1,28 @@
+{
+    "name": "Pollc",
+    "version": "1.0.0",
+    "description": "Pollc plugin",
+    "projectPath": "pollc",
+    "category": "PLUGIN",
+    "main": "",
+    "ui": "./ui.html",
+    "networkAccess": {
+      "allowDomains": [
+        "*"
+      ]
+    },
+    "capabilities": [
+      "ACT"
+    ],
+    "businesses": [
+      {
+        "verb": "POLL",
+        "capability": "ACTIVITY"
+      }
+    ],
+    "extensionData": {
+      "pollId": {
+        "type": "string"
+      }
+    }
+  }
