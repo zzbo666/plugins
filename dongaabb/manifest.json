@@ -29,10 +29,10 @@
   "businesses": [
     {
       "verb": "POST",
-      "subVerb": "QUEST",
       "capability": "ACTIVITY"
     },
     {
+      "verb": "VERIFY_QUEST",
       "verb": "VERIFY_QUEST",
       "capability": "REACTION"
     }
