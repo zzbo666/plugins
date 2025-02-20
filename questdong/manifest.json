@@ -1,8 +1,8 @@
 {
-  "name": "Quest",
+  "name": "Questdong",
   "version": "1.0.0",
-  "description": "Deek Quest",
-  "projectPath": "quest",
+  "description": "Deek Questdong",
+  "projectPath": "questdong",
   "main": "./code.js",
   "ui": "./ui.html",
   "category": "PLUGIN",
@@ -28,11 +28,11 @@
   ],
   "businesses": [
     {
-      "verb": "QUEST",
+      "verb": "QUESTDONG",
       "capability": "ACTIVITY"
     },
     {
-      "verb": "VERIFY_QUEST",
+      "verb": "VERIFY_QUESTDONG",
       "capability": "REACTION"
     }
   ],
