@@ -28,11 +28,11 @@
   ],
   "businesses": [
     {
-      "verb": "QUESTDONG",
+      "verb": "QUEST",
       "capability": "ACTIVITY"
     },
     {
-      "verb": "VERIFY_QUESTDONG",
+      "verb": "VERIFY_QUEST",
       "capability": "REACTION"
     }
   ],

@@ -18,8 +18,8 @@
     "abis": [],
     "businesses": [
         {
-            "verb": "TIPPINGDONG",
-            "targetVerb": "TIPPING",
+            "verb": "TIPPING",
+            "targetVerb": "VERIFY_TIPPING",
             "capability": "REACTION"
         }
     ],
