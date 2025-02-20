@@ -19,7 +19,7 @@
     "businesses": [
         {
             "verb": "TIPPING",
-            "targetVerb": "VERIFY_TIPPING",
+            "targetVerb": "WISH",
             "capability": "REACTION"
         }
     ],
