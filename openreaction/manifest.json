@@ -1,58 +1,49 @@
 {
   "name": "OpenReaction",
   "version": "1.0.0",
-  "description": "openreaction",
-  "projectPath": "openreaction",
-  "main": "./code.js",
-  "ui": "./ui.html",
-  "category": "PLUGIN",
-  "networkAccess": {
-    "allowDomains": [
-      "*"
-    ]
-  },
-  "capabilities": [
-    "REACTION"
+  "networkAccess": "{\"allowDomains\":[\"*\"]}",
+  "businesses":
+  [
+    {
+      "capability": "REACTION",
+      "verb": "OPEN_REACTION"
+    }
   ],
-  "powered": {
-    "name": "OSP"
-  },
-  "abis": [
+  "abis":
+  [
     {
       "group": "openreaction",
       "address": "0xcca7581d7Ebb2897200B42193E4aC1e90Fe7aCfa",
-      "abi": []
+      "abi":
+      []
     }
   ],
-  "businesses": [
+  "reactionData":
+  {
+    "version":
     {
-      "verb": "OPEN_REACTION",
-      "capability": "REACTION"
-    }
-  ],
-  "reactionData": {
-    "referenceProfileId": {
+      "type": "uint8"
+    },
+    "reactionType":
+    {
       "type": "uint256"
     },
-    "profileId": {
-      "type": "uint256"
-    },
-    "referenceContentId": {
-      "type": "uint256"
-    },
-    "data": {
+    "data":
+    {
       "type": "bytes"
     }
   },
-  "reactionStats": {
-       "activity": [
-            "reaction_count",
-            "reaction_user_count"
-        ],
-       "user":
-       [
-        "reaction_count",
-        "reaction_user_count"
-      ]
+  "reactionStats":
+  {
+    "activity":
+    [
+      "reaction_count",
+      "reaction_user_count"
+    ],
+    "user":
+    [
+      "reaction_count",
+      "reaction_user_count"
+    ]
   }
 }
