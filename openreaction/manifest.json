@@ -1,0 +1,58 @@
+{
+  "name": "OpenReaction",
+  "version": "1.0.0",
+  "description": "openreaction",
+  "projectPath": "openreaction",
+  "main": "./code.js",
+  "ui": "./ui.html",
+  "category": "PLUGIN",
+  "networkAccess": {
+    "allowDomains": [
+      "*"
+    ]
+  },
+  "capabilities": [
+    "REACTION"
+  ],
+  "powered": {
+    "name": "OSP"
+  },
+  "abis": [
+    {
+      "group": "openreaction",
+      "address": "0xcca7581d7Ebb2897200B42193E4aC1e90Fe7aCfa",
+      "abi": []
+    }
+  ],
+  "businesses": [
+    {
+      "verb": "OPEN_REACTION",
+      "capability": "REACTION"
+    }
+  ],
+  "reactionData": {
+    "referenceProfileId": {
+      "type": "uint256"
+    },
+    "profileId": {
+      "type": "uint256"
+    },
+    "referenceContentId": {
+      "type": "uint256"
+    },
+    "data": {
+      "type": "bytes"
+    }
+  },
+  "reactionStats": {
+       "activity": [
+            "reaction_count",
+            "reaction_user_count"
+        ],
+       "user":
+       [
+        "reaction_count",
+        "reaction_user_count"
+      ]
+  }
+}
