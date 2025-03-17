@@ -13,7 +13,7 @@
   [
     {
       "capability": "REACTION",
-      "verb": "OPEN_REACTION"
+      "verb": "SIMPLE_REACTION"
     }
   ],
   "abis":
