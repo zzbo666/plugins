@@ -4,6 +4,7 @@
   "description": "openreaction",
   "projectPath": "openreaction",
   "networkAccess": "{\"allowDomains\":[\"*\"]}",
+  "category": "PLUGIN",
   "businesses":
   [
     {
