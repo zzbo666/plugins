@@ -1,8 +1,8 @@
 {
-  "name": "OpenReaction",
+  "name": "SimpleReaction",
   "version": "1.0.0",
-  "description": "openreaction",
-  "projectPath": "openreaction",
+  "description": "simplereaction",
+  "projectPath": "simplereaction",
   "networkAccess": {
     "allowDomains": [
       "*"
@@ -19,7 +19,7 @@
   "abis":
   [
     {
-      "group": "openreaction",
+      "group": "simplereaction",
       "address": "0xcca7581d7Ebb2897200B42193E4aC1e90Fe7aCfa",
       "abi":
       []
