@@ -3,7 +3,11 @@
   "version": "1.0.0",
   "description": "openreaction",
   "projectPath": "openreaction",
-  "networkAccess": "{\"allowDomains\":[\"*\"]}",
+  "networkAccess": {
+    "allowDomains": [
+      "*"
+    ]
+  },
   "category": "PLUGIN",
   "businesses":
   [
